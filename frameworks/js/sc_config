@@ -1,5 +1,9 @@
 BT.addFramework(BT.Framework.extend({
   ref: "sproutcore-ace:js",
   path: dirname(),
-  dependencies: ["sproutcore-ace:foundation"]
+  dependencies: ["sproutcore-ace:foundation"],
+  resources: function () { // this override is here in order to make worker-javascript being recognized as resource
+    return this.getPath('files.scripts');
+  }.property('files'),
 }));
+
