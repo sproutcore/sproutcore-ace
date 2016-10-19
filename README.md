@@ -6,3 +6,5 @@ Because of the size and the incompatability between the loading system of Ace an
 
 Every module lives in its own sub-framework and therefore has to be added to the dependencies of your app. So, in order to include the html mode, you need to add 'sproutcore-ace:html'. This should automatically also include the basic editor.
 
+This framework can only be used with the NodeJS based SproutCore build tools.
+
