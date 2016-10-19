@@ -1,0 +1,5 @@
+BT.addFramework(BT.Framework.extend({
+  ref: "sproutcore-ace:searchbox",
+  path: dirname(),
+  dependencies: ["sproutcore-ace:foundation"]
+}));

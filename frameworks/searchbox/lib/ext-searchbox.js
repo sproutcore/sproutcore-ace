@@ -1,0 +1,1 @@
+../../../lib/src/ext-searchbox.js

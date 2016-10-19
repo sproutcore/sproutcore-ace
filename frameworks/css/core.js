@@ -1,0 +1,1 @@
+SC.AceEditor.modes.push('css');
