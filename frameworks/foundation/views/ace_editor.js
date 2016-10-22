@@ -21,6 +21,12 @@ SC.AceEditorView = SC.View.extend({
 
   docId: 'default',
 
+  showGutter: true,
+
+  wrappingBehavior: null,
+
+  autoComplete: false,
+
   // @if (debug)
   debugAce: false,
   // @endif
@@ -28,7 +34,69 @@ SC.AceEditorView = SC.View.extend({
   // readOnly
   aceEditor: null,
 
-  showGutter: true,
+  _autoCompleteDidChange: function () {
+    // before it can be turned on or off, we need the language tools
+    if (!SC.AceEditor.extensions.contains('language_tools')) {
+      SC.Logger.warn("SC.AceEditorView: You are trying to turn on autoComplete, but you did not include the language tools extension.");
+      return;
+    }
+    var editor = this.get('aceEditor');
+    if (!this.editor) return;
+    var val = !!this.get('autoComplete');
+    editor.setOption('enableBasicAutocompletion', val);
+  }.observes('autoComplete'),
+
+  _wrappingBehaviorDidChange: function () {
+    var editor = this.get('aceEditor');
+    if (!editor) return;
+    var setting = !!this.get('wrappingBehavior');
+    editor.setWrapBehavioursEnabled(setting);
+  }.observes('wrappingBehavior'),
+
+  tabSize: 2,
+
+  _tabSizeDidChange: function () {
+    var editor = this.get('aceEditor');
+    if (!editor) return;
+    editor.setBehavioursEnabled(this.get('tabSize'));
+  }.observes('wrappingBehavior'),
+
+  tokenizedValue: function () {
+    var editor = this.get('aceEditor');
+    if (!editor) return;
+    var session = editor.session;
+    if (!session) return;
+    return session.getTokens(0);
+  }.property('value').cacheable(),
+
+  _showGutterDidChange: function () {
+    var editor = this.get('aceEditor');
+    if (!editor) {
+      //@if(debug)
+      SC.Logger.warn('Developer warning: SC.AceEditorView cannot set annotations when the editor has not been initialized!');
+      //@endif
+      return;
+    }
+    var value = !!this.get('showGutter');
+    editor.renderer.setShowGutter(value);
+  }.observes('showGutter'),
+
+  annotations: function (key, value) {
+    /*jshint unused: false*/
+    var editor = this.get('aceEditor');
+    if (!editor) {
+      //@if(debug)
+      SC.Logger.warn('Developer warning: SC.AceEditorView cannot set annotations when the editor has not been initialized!');
+      //@endif
+      return;
+    }
+    if (value !== undefined) {
+      return editor.session.setAnnotations(value);
+    }
+    else {
+      return editor.session.getAnnotations();
+    }
+  }.property(),
 
   didAppendToDocument: function() {
     var layerId = this.get('layerId');
@@ -238,11 +306,14 @@ SC.AceEditorView = SC.View.extend({
   configureSession: function(session) {
     var that = this;
     this.get('aceSessions')[this.get('docId')] = session;
-
-    session.setMode(this.getMode());
+    var mode = this.getMode();
+    console.log('setting mode', mode);
+    window.ACE_EDITOR_VIEW = this;
+    session.setMode(mode);
     session.setUseSoftTabs(true);
-    session.setTabSize(2);
-
+    // session.setTabSize(2);
+    this._tabSizeDidChange(); // apply tab size setting
+    this._wrappingBehaviorDidChange(); // apply wrapping setting
     session.setUseWrapMode(true);
 
     session.on('change', function(e) {

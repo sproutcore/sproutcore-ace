@@ -1,0 +1,5 @@
+BT.addFramework(BT.Framework.extend({
+  ref: "sproutcore-ace:language_tools",
+  path: dirname(),
+  dependencies: ["sproutcore-ace:foundation"]
+}));

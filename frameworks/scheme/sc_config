@@ -1,0 +1,5 @@
+BT.addFramework(BT.Framework.extend({
+  ref: "sproutcore-ace:scheme",
+  path: dirname(),
+  dependencies: ["sproutcore-ace:foundation"]
+}));

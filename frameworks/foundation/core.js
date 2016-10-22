@@ -4,4 +4,6 @@ SC.AceEditor = SC.Object.create({
 
   modes: [],
 
+  extensions: []
+
 });
