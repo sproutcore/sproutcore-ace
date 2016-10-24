@@ -1,4 +1,4 @@
-/*globals console, ace*/
+/*globals ace*/
 
 
 /**
@@ -100,10 +100,10 @@ SC.AceEditorView = SC.View.extend({
 
   didAppendToDocument: function() {
     var layerId = this.get('layerId');
-    console.log('layerId', layerId);
-    console.log('layer', document.getElementById(layerId));
+
+
     // @if (debug)
-    if (this.debugAce) console.log("_initAce", layerId, this.acceptsFirstResponder);
+    if (this.debugAce) SC.Logger.log("_initAce", layerId, this.acceptsFirstResponder);
     // @endif
 
     var that = this,
@@ -116,7 +116,7 @@ SC.AceEditorView = SC.View.extend({
     }
     catch(e) {
       // @if (debug)
-      console.error(e);
+      SC.Logger.error(e);
       // @endif
 
       return;
@@ -157,17 +157,15 @@ SC.AceEditorView = SC.View.extend({
 
     editor.setShowPrintMargin(false);
 
-
-
     editor.on("blur", function(e) {
       // @if (debug)
-      if (that.debugAce) console.log("ACE_DEBUG: blur");
+      if (that.debugAce) SC.Logger.log("ACE_DEBUG: blur", e);
       // @endif
     });
 
     editor.on("focus", function(e) {
       // @if (debug)
-      if (that.debugAce) console.log("ACE_DEBUG: focus");
+      if (that.debugAce) SC.Logger.log("ACE_DEBUG: focus", e);
       // @endif
 
       SC.run(function() {
@@ -307,8 +305,6 @@ SC.AceEditorView = SC.View.extend({
     var that = this;
     this.get('aceSessions')[this.get('docId')] = session;
     var mode = this.getMode();
-    console.log('setting mode', mode);
-    window.ACE_EDITOR_VIEW = this;
     session.setMode(mode);
     session.setUseSoftTabs(true);
     // session.setTabSize(2);
@@ -318,7 +314,7 @@ SC.AceEditorView = SC.View.extend({
 
     session.on('change', function(e) {
       // @if (debug)
-      if (that.debugAce) console.log("ACE_DEBUG: change - editorValue: '"+editor.getValue()+"' value: '"+that.get('value')+"'");
+      if (that.debugAce) SC.Logger.log("ACE_DEBUG: change - editorValue: '"+editor.getValue()+"' value: '"+that.get('value')+"'");
       // @endif
 
       SC.run(function() {
