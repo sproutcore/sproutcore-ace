@@ -27,10 +27,6 @@ SC.AceEditorView = SC.View.extend({
 
   autoComplete: false,
 
-  // @if (debug)
-  debugAce: false,
-  // @endif
-
   // readOnly
   aceEditor: null,
 
@@ -101,14 +97,8 @@ SC.AceEditorView = SC.View.extend({
   didAppendToDocument: function() {
     var layerId = this.get('layerId');
 
-
-    // @if (debug)
-    if (this.debugAce) SC.Logger.log("_initAce", layerId, this.acceptsFirstResponder);
-    // @endif
-
     var that = this,
         editor;
-        //mode = this.get('mode');
 
     try {
       editor = this.aceEditor = ace.edit(layerId);
@@ -151,23 +141,9 @@ SC.AceEditorView = SC.View.extend({
       editor.renderer.setShowGutter(false);
     }
 
-    // prevent a weird warning;
-    editor.$blockScrolling = Infinity;
-
-
     editor.setShowPrintMargin(false);
 
-    editor.on("blur", function(e) {
-      // @if (debug)
-      if (that.debugAce) SC.Logger.log("ACE_DEBUG: blur", e);
-      // @endif
-    });
-
     editor.on("focus", function(e) {
-      // @if (debug)
-      if (that.debugAce) SC.Logger.log("ACE_DEBUG: focus", e);
-      // @endif
-
       SC.run(function() {
         that.becomeFirstResponder();
       });
@@ -181,7 +157,7 @@ SC.AceEditorView = SC.View.extend({
   },
 
   didInitAce: function() {
-
+    // should call delegate
   },
 
 
@@ -190,15 +166,12 @@ SC.AceEditorView = SC.View.extend({
 
     if (!this.get('isEnabled')) return false;
 
-    // Ce test: editor.getValue() || this.get('value') évite que si on discardChange, un string vide
-    // soit défini à value ce qui réactiverais le bouton enregistré si value est un object
     // The test editor.getValue() || this.get('value') prevents the problem that when on discardChange
     // an empty string gets defined as value which would reactivate the 'register'? button when the value
     // is an object
     if (editor && (!SC.none(editor.getValue()) || !SC.none(this.get('value')))) {
       this.set('value', editor.getValue());
     }
-
   },
 
 
@@ -212,8 +185,6 @@ SC.AceEditorView = SC.View.extend({
       value = this.get('value'),
       valueToSet;
 
-    // On ne permet pas de changement si l'éditeur n'est pas affiché car dans ce cas,
-    // lorsque l'éditeur gagne le focus, les changements ne sont pas visible
     // We don't allow the change when the editor is not attached, otherwise the editor
     // would gain focus and the changes would not be not visible.
     if (editor) {
@@ -258,8 +229,6 @@ SC.AceEditorView = SC.View.extend({
     return true;
   },
 
-  // Ne doit pas être mi à jour. Sinon, lorsque ace est fait firstResponder
-  // l'editeur est supprimé par la fonction render
   // it is not necessary to be done immediately. Otherwise, unless ace is made firstResponder
   // the editor is surpessed by the render function
   updateLayer: function() { return false; },
@@ -268,12 +237,10 @@ SC.AceEditorView = SC.View.extend({
     sc_super();
 
     // only apply when the editor is active.
-    // Utile si on redimmensionne pendant que l'éditeur est actif
     if (this.aceEditor) this.aceEditor.resize();
   },
 
   // prevents change if the editor is disabled
-  // Permet d'empecher la saisie si l'éditeur est désactivé
   isEnabledDidChange: function() {
     var aceEditor = this.aceEditor;
     if (!aceEditor) return;
@@ -344,10 +311,6 @@ SC.AceEditorView = SC.View.extend({
     session.setUseWrapMode(true);
 
     session.on('change', function(e) {
-      // @if (debug)
-      if (that.debugAce) SC.Logger.log("ACE_DEBUG: change - editorValue: '"+editor.getValue()+"' value: '"+that.get('value')+"'");
-      // @endif
-
       SC.run(function() {
         that.aceEditorValueDidChange();
       });
@@ -365,8 +328,6 @@ SC.AceEditorView = SC.View.extend({
     else {
       // Important if the editor is in a panel because otherwise it remains firstResponder
       // and keyboardEvents are mapped to the editor
-      // Important si l'éditeur est dans un pane car sinon, il reste firstResponder
-      // et les keyboardEvents restent mappé sur l'éditeur
       this.resignFirstResponder();
     }
   }.observes('isVisibleInWindow'),
@@ -394,11 +355,6 @@ SC.AceEditorView = SC.View.extend({
       SC.Logger.warn("Developer Warning: You selected a mode for SC.AceEditorView which has not been loaded. Please check your buildtools configuration!");
     }
     //@endif
-    //
-    // switch(mode) {
-    //   case 'html': mode = 'html'; break;
-    //   case 'js': mode = 'javascript'; break;
-    // }
 
     return "ace/mode/"+mode;
   },
@@ -417,5 +373,3 @@ SC.AceEditorView = SC.View.extend({
   },
 
 });
-
-
