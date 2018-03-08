@@ -234,6 +234,29 @@ SC.AceEditorView = SC.View.extend({
     }
   },
 
+  willLoseFirstResponder: function() {
+    this.blurEditor();
+  },
+
+  blurEditor: function() {
+    var aceEditor = this.aceEditor,
+      searchBox = aceEditor.searchBox;
+
+    aceEditor.blur();
+    if (searchBox) searchBox.hide();
+  },
+
+  // Makes key events always be handle by ACE when the view is
+  // first responder.
+  keyDown: function(evt) {
+    evt.allowDefault();
+    return true;
+  },
+
+  keyUp: function(evt) {
+    evt.allowDefault();
+    return true;
+  },
 
   // Ne doit pas être mi à jour. Sinon, lorsque ace est fait firstResponder
   // l'editeur est supprimé par la fonction render
@@ -299,6 +322,14 @@ SC.AceEditorView = SC.View.extend({
     }
 
     aceEditor.setSession(session);
+
+    // Prevent an issue when the search box is open.
+    // For some reason, the search box may keep the focus even if the editor loose it.
+    // This can happens when we change value by clicking on a ListView.
+    // Without this, the listView would redirect unhandle key events to the searchbox but would
+    // handle some key events. For example, the delete key, which would delete the selected
+    // list item instead of the last typed character.
+    this.blurEditor();
   }.observes('docId'),
 
   configureSession: function(session) {
